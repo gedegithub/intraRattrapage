@@ -50,7 +50,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 // Requires Jenkins to run as a user with permission to write to /usr/share/nginx/html/
-                sh 'cp public/index.html /usr/share/nginx/html/index.html'
+                 // nano /etc/sudoers && add jenkins ALL=(ALL) NOPASSWD: /bin/cp
+                sh 'sudo cp public/index.html /usr/share/nginx/html/index.html'
             }
         }
     }
