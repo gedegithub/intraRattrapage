@@ -14,8 +14,6 @@ pipeline {
         stage('Install') {
             steps {
                 script {
-                    // Cleanup previous default env if exists
-                    sh 'python3 -m pip uninstall -r requirements.txt'
                     // Activer environment venv
                     sh '''
                         . $VENV_DIR/bin/activate
