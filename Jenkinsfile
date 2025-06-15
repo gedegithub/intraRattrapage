@@ -8,7 +8,7 @@ pipeline {
             steps {
                 script {
                     //  Installer les dépendances
-                    sh 'pip install -r requirements.txt' 
+                    sh 'python3 -m pip install -r requirements.txt' 
                     // Exécuter les script Python 
                     sh 'python3 scraper.py' 
                     // sh 'python3 html_generator.py'
