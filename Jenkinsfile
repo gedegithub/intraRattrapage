@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         VENV_DIR = 'venv'
-        PYTHON_HOME = '/usr/bin/python3'
+        // PYTHON_HOME = '/usr/bin/python3'
     }
     stages {
         stage('Prepare') {
@@ -14,16 +14,12 @@ pipeline {
         stage('Install') {
             steps {
                 script {
-                    // Activer environment venv
+                    // Activer environment venv & installer les dépendances
                     sh '''
                         . $VENV_DIR/bin/activate
-                        python3 -m pip install --upgrade pip
+                        pip install --upgrade pip
+                        pip install -r requirements.txt'
                     '''
-                    // Installer les dépendances
-                    sh 'python3 -m pip install -r requirements.txt'
-                    // Exécuter les scripts Python (décommenter si besoin)
-                    // sh 'python3 scraper.py'
-                    // sh 'python3 html_generator.py'
                 }
             }
         }
