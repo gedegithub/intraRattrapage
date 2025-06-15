@@ -64,12 +64,18 @@ pipeline {
         }
         stage('Conversion') {
             steps {
-                sh 'python3 html_generator.py'
+                sh '''
+                    . $VENV_DIR/bin/activate
+                    python3 html_generator.py
+                '''
             }
         }
         stage('Validation') {
             steps {
-                sh 'pytest -v test_validation.py'
+                sh ''' 
+                    . $VENV_DIR/bin/activate
+                    pytest -v test_validation.py 
+                '''
             }
         }
         stage('Deploy') {
