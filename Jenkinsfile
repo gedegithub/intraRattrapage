@@ -1,17 +1,48 @@
 pipeline {
     agent any
     environment {
+        VENV_DIR = 'venv'
         PYTHON_HOME = '/usr/bin/python3'
     }
     stages {
-        stage('Build') {
+        stage('Prepare') {
+            steps {
+                // Créer l'environnement virtuel
+                sh 'python3 -m venv $VENV_DIR'
+            }
+        }
+        stage('Install') {
             steps {
                 script {
-                    //  Installer les dépendances
-                    sh 'python3 -m pip install -r requirements.txt' 
-                    // Exécuter les script Python 
-                    sh 'python3 scraper.py' 
+                    // Cleanup previous default env if exists
+                    sh 'python3 -m pip uninstall -r requirements.txt'
+                    // Activer environment venv
+                    sh '''
+                        . $VENV_DIR/bin/activate
+                        python3 -m pip install --upgrade pip
+                    '''
+                    // Installer les dépendances
+                    sh 'python3 -m pip install -r requirements.txt'
+                    // Exécuter les scripts Python (décommenter si besoin)
+                    // sh 'python3 scraper.py'
                     // sh 'python3 html_generator.py'
+                }
+            }
+        }
+        stage('Run') {
+            steps {
+                // Exécuter le script Python et gérer les erreurs
+                script {
+                    try {
+                        sh '''
+                            . $VENV_DIR/bin/activate
+                            python3 scraper.py
+                        '''
+                    } catch (err) {
+                        echo "Erreur lors de l'exécution de scraper.py : ${err}"
+                        currentBuild.result = 'FAILURE'
+                        throw err
+                    }
                 }
             }
         }
@@ -50,7 +81,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // Requires Jenkins to run as a user with permission to write to /usr/share/nginx/html/
-                 // nano /etc/sudoers && add jenkins ALL=(ALL) NOPASSWD: /bin/cp
+                // nano /etc/sudoers && add jenkins ALL=(ALL) NOPASSWD: /bin/cp
                 sh 'sudo cp public/index.html /usr/share/nginx/html/index.html'
             }
         }
@@ -59,6 +90,13 @@ pipeline {
         always {
             // Archiver le fichier data.csv comme artefact dans Jenkins
             archiveArtifacts artifacts: 'data/jobs.csv,public/index.html,logs/log.txt', fingerprint: true
+
+            // Nettoyage de l’environnement virtuel
+            sh 'rm -rf $VENV_DIR || true'
+        }
+        failure {
+            // Actions à effectuer en cas d'échec du pipeline
+            echo 'Le pipeline a échoué. Consultez les logs.'
         }
     }
 }
