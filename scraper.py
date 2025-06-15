@@ -1,8 +1,7 @@
 import requests
-from bs4 import BeautifulSoup
-from tabulate import tabulate
-from IPython.display import display
 import pandas as pd
+from bs4 import BeautifulSoup
+from IPython.display import display
 
 headers = {
     "User-Agent": (
